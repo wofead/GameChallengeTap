@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1920,1080">
+  <displayList>
+    <graph id="n0_gio5" name="bgGraph" xy="0,0" size="1920,1080" type="rect" lineSize="0" fillColor="#ff666666"/>
+    <text id="n1_gio5" name="loginTxt" xy="838,500" size="244,79" fontSize="60" text="登录界面"/>
+  </displayList>
+</component>

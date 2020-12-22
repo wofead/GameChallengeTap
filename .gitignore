@@ -57,4 +57,5 @@
 
 # Crashlytics generated file
 /Rainbow/crashlytics-build.properties
+/RainbowGUI/.objs/
 

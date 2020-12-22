@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<packageDescription id="gpt0jv85">
+  <resources>
+    <component id="gio50" name="LoginView.xml" path="/Component/" exported="true"/>
+  </resources>
+  <publish name="" genCode="true" extractAlpha="true"/>
+</packageDescription>
