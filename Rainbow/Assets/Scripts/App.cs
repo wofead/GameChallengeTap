@@ -8,6 +8,8 @@ public class App
 {
     public UiManager uiManager;
     public FightManager fightManager;
+    public TemplateManager templateManager;
+
     public GameObject fight;
     public App()
     {
@@ -23,6 +25,8 @@ public class App
     {
         uiManager = new UiManager();
         fightManager = new FightManager(this);
+        templateManager = new TemplateManager();
+        TemplateManager.LoadAllTable();
     }
 
     public void GameStart()
