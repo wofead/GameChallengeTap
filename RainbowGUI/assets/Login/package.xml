@@ -2,6 +2,7 @@
 <packageDescription id="gpt0jv85">
   <resources>
     <component id="gio50" name="LoginView.xml" path="/Component/" exported="true"/>
+    <component id="gio51" name="LoginButton.xml" path="/Component/"/>
   </resources>
   <publish name="" genCode="true" extractAlpha="true"/>
 </packageDescription>
