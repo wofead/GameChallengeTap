@@ -9,6 +9,7 @@ namespace Login
     {
         public GGraph m_bgGraph;
         public GTextField m_loginTxt;
+        public GButton m_loginBtn;
         public const string URL = "ui://gpt0jv85gio50";
 
         public static UI_LoginView CreateInstance()
@@ -22,6 +23,7 @@ namespace Login
 
             m_bgGraph = (GGraph)GetChildAt(0);
             m_loginTxt = (GTextField)GetChildAt(1);
+            m_loginBtn = (GButton)GetChildAt(2);
         }
     }
 }

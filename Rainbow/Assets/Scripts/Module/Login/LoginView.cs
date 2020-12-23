@@ -2,30 +2,33 @@
 using UnityEngine;
 using FairyGUI;
 
-public class LoginView:BaseUi
+public class LoginView
 {
-    UI_LoginView view;
+    public UI_LoginView view;
+    App app;
 
-    public LoginView()
+    private void LoadPackage()
     {
-        view = UI_LoginView.CreateInstance();
-        Init(view);
-
+        UIPackage.AddPackage("Assets/Resources/UI/Login");
     }
 
-    override public void Init(GComponent com)
+    public LoginView(App app)
     {
-        base.Init(com);
-        Test();
+        this.app = app;
+        LoadPackage();
+        LoginBinder.BindAll();
+        view = UI_LoginView.CreateInstance();
+        Init(view);
+    }
+
+    public void Init(UI_LoginView com)
+    {
+        this.view = com;
+        RegistEvent();
     }
 
     public void RegistEvent()
     {
-        
-    }
-
-    public void Test()
-    {
-        view.m_bgGraph.color = Color.red;
+        view.m_loginBtn.onClick.Add(() => { app.EnterFight(); });
     }
 }
