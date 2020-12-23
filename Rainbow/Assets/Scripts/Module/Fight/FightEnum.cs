@@ -10,6 +10,7 @@ namespace Assets.Scripts.Module.Fight
     {
         Player = 1,
         Npc = 2,
-        Enemy = 4
+        Enemy = 4,
+        Bomb = 8
     }
 }
