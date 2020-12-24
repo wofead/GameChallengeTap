@@ -8,6 +8,6 @@ namespace Assets.Scripts.Module.Fight.Ecs.Components
 {
     public struct CategotyComponent
     {
-        int value;
+        public Category value;
     }
 }

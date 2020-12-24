@@ -1,4 +1,5 @@
-﻿using Leopotam.Ecs;
+﻿using Assets.Scripts.Module.Fight.Ecs.Components;
+using Leopotam.Ecs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,8 @@ namespace Assets.Scripts.Module.Fight.Ecs
         public static EcsEntity CreateAirplane(this EcsWorld world)
         {
             EcsEntity entity = world.NewEntity();
+            CategotyComponent category = new CategotyComponent() { value = Category.Player };
+            entity.Replace(category);
             //            / Get() returns component on entity. If component not exists -it will be added.
             //ref Component1 c1 = ref entity.Get<Component1>();
             //            ref Component2 c2 = ref entity.Get<Component2>();

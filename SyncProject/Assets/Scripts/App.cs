@@ -8,6 +8,8 @@ public class App
 {
     public UiManager uiManager;
     public FightManager fightManager;
+    public TemplateManager templateManager;
+
     public GameObject fight;
     public App()
     {
@@ -23,13 +25,17 @@ public class App
     {
         uiManager = new UiManager();
         fightManager = new FightManager(this);
+        templateManager = new TemplateManager();
     }
 
     public void GameStart()
     {
-        LoginView loginView = new LoginView();
+        LoginView loginView = new LoginView(this);
         uiManager.ShowView(loginView.view);
+    }
 
+    public void EnterFight()
+    {
         fightManager.CreateFight();
     }
 

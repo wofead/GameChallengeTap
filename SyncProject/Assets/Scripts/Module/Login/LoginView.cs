@@ -5,32 +5,30 @@ using FairyGUI;
 public class LoginView
 {
     public UI_LoginView view;
+    App app;
 
     private void LoadPackage()
     {
         UIPackage.AddPackage("Assets/Resources/UI/Login");
     }
 
-    public LoginView()
+    public LoginView(App app)
     {
+        this.app = app;
         LoadPackage();
         LoginBinder.BindAll();
         view = UI_LoginView.CreateInstance();
         Init(view);
     }
 
-    public void Init(GComponent com)
+    public void Init(UI_LoginView com)
     {
-        Test();
+        this.view = com;
+        RegistEvent();
     }
 
     public void RegistEvent()
     {
-
-    }
-
-    public void Test()
-    {
-        //view.m_bgGraph.color = Color.red;
+        view.m_loginBtn.onClick.Add(() => { app.EnterFight(); });
     }
 }
