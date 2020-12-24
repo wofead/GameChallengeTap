@@ -1,6 +1,4 @@
-﻿using Unity;
-using UnityEngine;
-
+﻿using Box2DSharp.Common;
 namespace Assets.Scripts.Module.Fight.Ecs.Components
 {
     public struct TransformComponent

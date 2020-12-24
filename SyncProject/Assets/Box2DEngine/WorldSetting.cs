@@ -7,7 +7,7 @@ namespace Box2DSharp
     public class WorldSetting
     {
         public Camera Camera;
-        
+
         public UnityDrawer UnityDrawer;
 
         public BoxDrawer Drawer;
@@ -56,7 +56,5 @@ namespace Box2DSharp
 
         public bool EnableMouseAction;
 
-        public void Awake()
-        { }
     }
 }

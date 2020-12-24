@@ -12,10 +12,8 @@ namespace Box2DSharp
     public class PhysicsController : MonoBehaviour
     {        
         [HideInInspector]
-        public Test CurrentTest;
+        public PhysicsFight PhysicsFight;
         
-        public string StartTest;
-
         public FpsCounter FpsCounter = new FpsCounter();
 
         public FixedUpdate FixedUpdate;
@@ -23,23 +21,23 @@ namespace Box2DSharp
         private void Awake()
         {
 
-            Test.TestSettings.UnityDrawer = UnityDrawer.GetDrawer();
-            Test.TestSettings.Drawer = new BoxDrawer {Drawer = Test.TestSettings.UnityDrawer};
+            PhysicsFight.WorldSetting.UnityDrawer = UnityDrawer.GetDrawer();
+            PhysicsFight.WorldSetting.Drawer = new BoxDrawer {Drawer = PhysicsFight.WorldSetting.UnityDrawer};
 
             FixedUpdate = new FixedUpdate(TimeSpan.FromSeconds(1 / 60d), Tick);
             MainCamera = Camera.main;
-            Test.TestSettings.Camera = MainCamera;
+            PhysicsFight.WorldSetting.Camera = MainCamera;
         }
 
         private void Start()
         {
-            CurrentTest = new HelloWorld();
+            PhysicsFight = new PhysicsFight();
             FixedUpdate.Start();
         }
 
         private void Tick()
         {
-            CurrentTest.Step();
+            PhysicsFight.Step();
             FpsCounter.SetFps();
         }
 
@@ -53,7 +51,7 @@ namespace Box2DSharp
 
         public void Update()
         {
-            CurrentTest.Update();
+            PhysicsFight.Update();
             FixedUpdate.Update();
             var mousePosition = Input.mousePosition;
 
@@ -75,30 +73,30 @@ namespace Box2DSharp
             // Launch Bomb
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                CurrentTest.LaunchBomb();
+                PhysicsFight.LaunchBomb();
             }
 
             // Mouse left drag
-            CurrentTest.MouseWorld = MainCamera.ScreenToWorldPoint(Input.mousePosition).ToVector2();
-            CurrentTest.MouseJoint?.SetTarget(CurrentTest.MouseWorld);
+            PhysicsFight.MouseWorld = MainCamera.ScreenToWorldPoint(Input.mousePosition).ToVector2();
+            PhysicsFight.MouseJoint?.SetTarget(PhysicsFight.MouseWorld);
 
-            if (Test.TestSettings.EnableMouseAction)
+            if (PhysicsFight.WorldSetting.EnableMouseAction)
             {
                 if (Input.GetMouseButtonDown(0))
                 {
                     if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                     {
-                        CurrentTest.ShiftMouseDown();
+                        PhysicsFight.ShiftMouseDown();
                     }
                     else
                     {
-                        CurrentTest.MouseDown();
+                        PhysicsFight.MouseDown();
                     }
                 }
 
                 if (Input.GetMouseButtonUp(0))
                 {
-                    CurrentTest.MouseUp();
+                    PhysicsFight.MouseUp();
                 }
 
                 // Mouse right move camera
@@ -150,23 +148,22 @@ namespace Box2DSharp
                 }
             }
 
-            CurrentTest.DrawString(CurrentTest.TestName);
-            if (Test.TestSettings.Pause)
+            if (PhysicsFight.WorldSetting.Pause)
             {
-                CurrentTest.DrawString("****PAUSED****");
+                PhysicsFight.DrawString("****PAUSED****");
             }
 
             // FPS
             {
                 var text = $"{FpsCounter.Ms:0.0} ms ({FpsCounter.Fps:F1} fps)";
-                CurrentTest.DrawString(text);
+                PhysicsFight.DrawString(text);
             }
 
             // Step
             {
-                CurrentTest.DrawString($"{CurrentTest.StepCount} Steps");
+                PhysicsFight.DrawString($"{PhysicsFight.StepCount} Steps");
             }
-            CurrentTest.DrawTest();
+            PhysicsFight.DrawTest();
         }
 
         private Rect _rect;
@@ -174,34 +171,24 @@ namespace Box2DSharp
         private GUIStyle _style;
 
 
-        private string GetTestName(Type type)
-        {
-            return Regex.Replace(type.Name, @"(\B[A-Z])", " $1");
-        }
-
         private void Restart()
         {
-            CurrentTest = (Test) Activator.CreateInstance(CurrentTest.GetType());
+            //CurrentTest = (Test) Activator.CreateInstance(CurrentTest.GetType());
         }
 
         private void Pause()
         {
-            Test.TestSettings.Pause = !Test.TestSettings.Pause;
+            PhysicsFight.WorldSetting.Pause = !PhysicsFight.WorldSetting.Pause;
         }
 
         private void SingleStep()
         {
-            Test.TestSettings.SingleStep = true;
+            PhysicsFight.WorldSetting.SingleStep = true;
         }
 
         public void ToggleControlPanel(bool isShow)
         {
-            Test.TestSettings.ShowControlPanel = isShow;
-        }
-
-        private string GetSliderText(string text, int value)
-        {
-            return Regex.Replace(text, "([0-9]+)", $"{value}");
+            PhysicsFight.WorldSetting.ShowControlPanel = isShow;
         }
     }
 }
