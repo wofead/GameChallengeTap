@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<packageDescription id="5dhr4gxb">
+  <resources>
+    <component id="c5im0" name="FightView.xml" path="/Component/" exported="true"/>
+    <component id="c5im1" name="SkillButton.xml" path="/Component/"/>
+    <component id="c5im2" name="AirPlaneButton.xml" path="/Component/"/>
+  </resources>
+  <publish name="" genCode="true" extractAlpha="true"/>
+</packageDescription>

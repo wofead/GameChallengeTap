@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1080,1920">
+  <displayList>
+    <component id="n0_c5im" name="skill1Btn" src="c5im1" fileName="Component/SkillButton.xml" xy="980,780" group="n3_c5im"/>
+    <component id="n8_c5im" name="skill2Btn" src="c5im1" fileName="Component/SkillButton.xml" xy="980,910" group="n3_c5im"/>
+    <component id="n9_c5im" name="skill3Btn" src="c5im1" fileName="Component/SkillButton.xml" xy="980,1040" group="n3_c5im"/>
+    <group id="n3_c5im" name="skillGroup" xy="980,780" size="100,360"/>
+    <component id="n4_c5im" name="airPlane1Btn" src="c5im2" fileName="Component/AirPlaneButton.xml" xy="0,780" group="n7_c5im"/>
+    <component id="n10_c5im" name="airPlane2Btn" src="c5im2" fileName="Component/AirPlaneButton.xml" xy="0,910" group="n7_c5im"/>
+    <component id="n11_c5im" name="airPlane3Btn" src="c5im2" fileName="Component/AirPlaneButton.xml" xy="0,1040" group="n7_c5im"/>
+    <group id="n7_c5im" name="airPlaneGrooup" xy="0,780" size="100,360"/>
+  </displayList>
+</component>

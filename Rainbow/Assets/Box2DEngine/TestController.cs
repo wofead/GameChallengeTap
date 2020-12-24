@@ -186,6 +186,7 @@ namespace Box2DSharp
                 CurrentTestIndex = _testIndex;
                 CurrentTest?.Dispose();
                 CurrentTest = (Test) Activator.CreateInstance(_testTypes[CurrentTestIndex].TestType);
+                Debug.Log(_testTypes[CurrentTestIndex].TestType);
                 FixedUpdate.Reset();
                 FixedUpdate.Start();
             }

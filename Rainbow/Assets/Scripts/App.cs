@@ -26,7 +26,6 @@ public class App
         uiManager = new UiManager();
         fightManager = new FightManager(this);
         templateManager = new TemplateManager();
-        TemplateManager.LoadAllTable();
     }
 
     public void GameStart()
@@ -37,6 +36,7 @@ public class App
 
     public void EnterFight()
     {
+        uiManager.CloseAllView();
         fightManager.CreateFight();
     }
 
