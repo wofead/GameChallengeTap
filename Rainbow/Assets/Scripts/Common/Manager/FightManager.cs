@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Module.Fight;
 using Box2DSharp;
+using Box2DSharp.Inspection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,8 +28,8 @@ namespace Assets.Scripts.Common
             app.fight = fightStartUp;
             FightStartUp fight =  fightStartUp.AddComponent<FightStartUp>();
             fight.Init(app);
+            fightStartUp.AddComponent<UnityDrawer>();
             fightStartUp.AddComponent<PhysicsController>();
-
         }
     }
 }

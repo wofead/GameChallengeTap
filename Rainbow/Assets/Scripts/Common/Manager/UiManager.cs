@@ -23,20 +23,20 @@ namespace Assets.Scripts.Common
 
         public void ShowView(GComponent view)
         {
-            if (viewDic.ContainsKey(view.name))
+            if (viewDic.ContainsKey(view.displayObject.gameObject.name))
             {
                 view.visible = true;
             }
             else
             {
                 uiLayer.AddChild(view);
-                viewDic[view.name] = view;
+                viewDic[view.displayObject.gameObject.name] = view;
             }
         }
 
         public void CloseView(GComponent view)
         {
-            if (viewDic.ContainsKey(view.name))
+            if (viewDic.ContainsKey(view.displayObject.gameObject.name))
             {
                 view.visible = false;
             }

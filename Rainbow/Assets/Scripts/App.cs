@@ -37,6 +37,8 @@ public class App
     public void EnterFight()
     {
         uiManager.CloseAllView();
+        FightView fightView = new FightView(this);
+        uiManager.ShowView(fightView.view);
         fightManager.CreateFight();
     }
 
