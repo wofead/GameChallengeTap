@@ -2,6 +2,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using System.Threading;
 using Box2DSharp.Collision;
@@ -152,6 +153,12 @@ namespace Box2DSharp.Dynamics
         /// Get the quality metric of the dynamic tree. The smaller the better.
         /// The minimum is 1.
         public float TreeQuality => ContactManager.BroadPhase.GetTreeQuality();
+
+        public delegate void BodyDelegate(Body body);
+        /// <summary>
+        /// Fires whenever a body has been removed
+        /// </summary>
+        public BodyDelegate BodyRemoved;
 
         public World()
             : this(new Vector2(0, -10))
@@ -304,6 +311,11 @@ namespace Box2DSharp.Dynamics
             BodyList.Remove(body.Node);
             body.Dispose();
             return true;
+        }
+
+        public bool HasBody(Body body)
+        {
+            return BodyList.Contains(body);
         }
 
         /// <summary>

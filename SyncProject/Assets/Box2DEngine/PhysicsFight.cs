@@ -12,6 +12,10 @@ using Joint = Box2DSharp.Dynamics.Joints.Joint;
 using Random = System.Random;
 using Vector2 = System.Numerics.Vector2;
 using Color = Box2DSharp.Common.Color;
+using System.Collections.Generic;
+using UnityEngine;
+using Assets.Box2DEngine.Unity;
+using TrueSync.Physics2D.Common;
 
 namespace Box2DSharp
 {
@@ -41,9 +45,21 @@ namespace Box2DSharp
 
         public readonly string TestName;
 
+        Dictionary<Body, string> entityMap;
+
+        Dictionary<Body, GameObject> gameObjectMap;
+
+        Dictionary<Fixture, Dictionary<Fixture, BoxCollision2D>> collisionInfo;
+
+        private ObjectPool<BoxCollision2D> _collisionPool;
+        public ObjectPool<BoxRaycastHit2D> raycastHitPool;
+
         public int StepCount;
 
-        public IDrawer Drawer => WorldSetting.Drawer;
+        public IDrawer Drawer => WorldSetting.Drawer;/**
+         *  @brief Public access to a manager instance.
+         **/
+        public static PhysicsFight instance;
 
         public PhysicsFight()
         {
@@ -55,6 +71,7 @@ namespace Box2DSharp
             World.Drawer = Drawer;
             GroundBody = World.CreateBody(new BodyDef());
             DumpLogger.Instance = new UnityLogger();
+            instance = this;
         }
 
         public void BeginContact(Contact contact)
@@ -450,6 +467,136 @@ namespace Box2DSharp
             return r;
         }
 
+        public void AddBody(Body body, string entityId)
+        {
+            if (body == null)
+            {
+                return;
+            }
+            if (entityMap.ContainsKey(body))
+            {
+                return;
+            }
+            entityMap[body] = entityId;
+        }
+
+        public void AddBody(Body body, GameObject go)
+        {
+            if (body == null)
+            {
+                return;
+            }
+            if (gameObjectMap.ContainsKey(body))
+            {
+                return;
+            }
+
+            gameObjectMap[body] = go;
+        }
+        public void RemoveBody(Body body)
+        {
+            if (!body.IsDisposed)
+            {
+                World.DestroyBody(body);
+            }
+        }
+
+        public bool HasBody(Body body)
+        {
+            return World.HasBody(body);
+        }
+
+        public void OnRemoveBody(Action<Body> OnRemoveBody)
+        {
+            World.BodyRemoved += delegate (Body body)
+            {
+                OnRemoveBody(body);
+            };
+        }
+
+        private void OnRemovedRigidBody(Body body)
+        {
+            this.RemoveObjectByBody(body);
+            this.RemoveEntityByBody(body);
+
+            for (int i = 0; i < body.FixtureList.Count; i++)
+            {
+                if (collisionInfo.ContainsKey(body.FixtureList[i]))
+                {
+                    var dict = collisionInfo[body.FixtureList[i]];
+                    var values = dict.Values;
+                    foreach (var item in values)
+                    {
+                        _collisionPool.Return(item);
+                    }
+                    dict.Clear();
+                    collisionInfo.Remove(body.FixtureList[i]);
+                }
+            }
+        }
+
+        public void RemoveObjectByBody(Body body)
+        {
+            if (gameObjectMap.ContainsKey(body))
+            {
+                gameObjectMap.Remove(body);
+            }
+        }
+        public void RemoveEntityByBody(Body body)
+        {
+            if (entityMap.ContainsKey(body))
+            {
+                entityMap.Remove(body);
+            }
+        }
+
+        public GameObject GetGameObject(Body body)
+        {
+            if (!gameObjectMap.ContainsKey(body))
+            {
+                return null;
+            }
+
+            return gameObjectMap[body];
+        }
+
+        public string GetEntityId(Body body)
+        {
+            if (!entityMap.ContainsKey(body))
+            {
+                return null;
+            }
+
+            return entityMap[body];
+        }
+
+        public Body GetEntity(string entityId)
+        {
+            if (!entityMap.ContainsValue(entityId))
+            {
+                return null;
+            }
+            foreach (KeyValuePair<Body, string> kvp in entityMap)
+            {
+                if (kvp.Value.Equals(entityId))
+                {
+                    return kvp.Key;
+                }
+            }
+            return null;
+        }
+
+
+        public int GetBodyLayer(Body body)
+        {
+            GameObject go = GetGameObject(body);
+            if (go == null)
+            {
+                return -1;
+            }
+
+            return go.layer;
+        }
         public struct ContactPoint
         {
             public Fixture FixtureA;

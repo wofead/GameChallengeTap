@@ -215,6 +215,22 @@ namespace Box2DSharp.Dynamics
         /// 物体位置
         /// </summary>
         internal Transform Transform; // the body origin transform
+        /// <summary>
+        /// Gets or sets a value indicating whether this body ignores gravity.
+        /// </summary>
+        /// <value><c>true</c> if  it ignores gravity; otherwise, <c>false</c>.</value>
+        public bool IgnoreGravity { get; set; }
+        /// <summary>
+        /// Gets or sets a value wheather calculate mass auto.
+        /// </summary>
+        /// <value><c>true</c> calculate mass auto <c>false</c>.</value>
+        public bool UseAutoMass { get; set; }
+        /// <summary>
+        /// 风力缩放 Defaults to 1
+        /// </summary>
+        public float WindScale { get; set; }
+        internal short _collisionGroup;
+        internal short _triggerCollisionGroup;
 
         internal Body(in BodyDef def, World world)
         {
@@ -352,6 +368,11 @@ namespace Box2DSharp.Dynamics
                     return;
                 }
 
+                if (UseAutoMass)
+                {
+                    return;
+                }
+
                 _type = value;
 
                 ResetMassData();
@@ -465,6 +486,28 @@ namespace Box2DSharp.Dynamics
                     AngularVelocity = 0.0f;
                     Force.SetZero();
                     Torque = 0.0f;
+                }
+            }
+        }
+
+        public bool IsHover
+        {
+            get => HasFlag(BodyFlags.IsHover);
+            set
+            {
+                if (value)
+                {
+                    Flags |= BodyFlags.IsHover;
+                    //SleepTime = FP.Zero;
+                    //LinearVelocity = TSVector2.zero;
+                    //AngularVelocity = FP.Zero;
+                    //Force.SetZero();
+                    //Torque = FP.Zero;
+                }
+                else
+                {
+                    Flags &= ~BodyFlags.IsHover;
+                    //SleepTime = FP.Zero;
                 }
             }
         }
@@ -587,6 +630,11 @@ namespace Box2DSharp.Dynamics
             JointEdges?.Clear();
             Fixtures?.Clear();
             GC.SuppressFinalize(this);
+        }
+
+        public bool IsDisposed
+        {
+            get { return _world == null; }
         }
 
         public void SetAngularVelocity(float value)
@@ -768,6 +816,55 @@ namespace Box2DSharp.Dynamics
             foreach (var f in Fixtures)
             {
                 f.Synchronize(broadPhase, Transform, Transform);
+            }
+        }
+
+        /// <summary>
+        /// Get the world body origin position.
+        /// </summary>
+        /// <returns>Return the world position of the body's origin.</returns>
+        public Vector2 Position
+        {
+            get { return Transform.Position; }
+            set
+            {
+                Debug.Assert(!float.IsNaN(value.X) && !float.IsNaN((value.Y)));
+
+                SetTransform(in value, Rotation);
+            }
+        }
+
+        /// <summary>
+        /// Get the angle in radians.
+        /// </summary>
+        /// <returns>Return the current world rotation angle in radians.</returns>
+        public float Rotation
+        {
+            get { return Sweep.A; }
+            set
+            {
+                Debug.Assert(!float.IsNaN(value));
+
+                if (value == Rotation)
+                {
+                    return;
+                }
+                SetTransform(in Transform.Position, value);
+            }
+        }
+
+        public float Angle
+        {
+            get { return Sweep.A * UnityEngine.Mathf.Rad2Deg; }
+            set
+            {
+                Debug.Assert(!float.IsNaN(value));
+
+                if (value == Angle)
+                {
+                    return;
+                }
+                SetTransform(in Transform.Position, value * UnityEngine.Mathf.Deg2Rad);
             }
         }
 
@@ -1041,6 +1138,8 @@ namespace Box2DSharp.Dynamics
         /// 重置质量数据
         private void ResetMassData()
         {
+            if (!UseAutoMass && BodyType == BodyType.DynamicBody)
+                return;
             // Compute mass data from shapes. Each shape has its own density.
             // 从所有形状计算质量数据,每个形状都有各自的密度
             _mass = 0.0f;
@@ -1280,9 +1379,245 @@ namespace Box2DSharp.Dynamics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool HasFlag(BodyFlags flag)
+        {
+            return (Flags & flag) != 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnsetFlag(BodyFlags flag)
         {
             Flags &= ~flag;
+        }
+
+        public Category CollisionCategories
+        {
+            set
+            {
+                for (int i = 0; i < FixtureList.Count; i++)
+                {
+                    Fixture f = FixtureList[i];
+                    if (!f.IsSensor)
+                    {
+                        var filter = f.Filter;
+                        filter.CategoryBits = (ushort)value;
+                        f.Filter = filter;
+                    }
+                }
+            }
+        }
+
+        public Category TriggerCollisionCategories
+        {
+            set
+            {
+                for (int i = 0; i < FixtureList.Count; i++)
+                {
+                    Fixture f = FixtureList[i];
+                    if (f.IsSensor)
+                    {
+                        var filter = f.Filter;
+                        filter.CategoryBits = (ushort)value;
+                        f.Filter = filter;
+                    }
+                }
+            }
+        }
+
+        public Category CollidesWith
+        {
+            set
+            {
+                for (int i = 0; i < FixtureList.Count; i++)
+                {
+                    Fixture f = FixtureList[i];
+                    if (!f.IsSensor)
+                    {
+                        var filter = f.Filter;
+                        filter.MaskBits = (ushort)value;
+                        f.Filter = filter;
+                    }
+                }
+            }
+        }
+
+        public Category TriggerCollidesWith
+        {
+            set
+            {
+                for (int i = 0; i < FixtureList.Count; i++)
+                {
+                    Fixture f = FixtureList[i];
+                    if (f.IsSensor)
+                    {
+                        var filter = f.Filter;
+                        filter.MaskBits = (ushort)value;
+                        f.Filter = filter;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Defaults to 0
+        /// 
+        /// If Settings.UseFPECollisionCategories is set to false:
+        /// Collision groups allow a certain group of objects to never collide (negative)
+        /// or always collide (positive). Zero means no collision group. Non-zero group
+        /// filtering always wins against the mask bits.
+        /// 
+        /// If Settings.UseFPECollisionCategories is set to true:
+        /// If 2 fixtures are in the same collision group, they will not collide.
+        /// </summary>
+        public short CollisionGroup
+        {
+            set
+            {
+                if (_collisionGroup == value)
+                    return;
+
+                _collisionGroup = value;
+
+                for (int i = 0; i < FixtureList.Count; i++)
+                {
+                    Fixture f = FixtureList[i];
+                    if (!f.IsSensor)
+                    {
+                        var filter = f.Filter;
+                        filter.GroupIndex = value;
+                        f.Filter = filter;
+                    }
+                }
+            }
+            get { return _collisionGroup; }
+        }
+
+        public short TriggerCollisionGroup
+        {
+            set
+            {
+                if (_triggerCollisionGroup == value)
+                    return;
+
+                _triggerCollisionGroup = value;
+
+                for (int i = 0; i < FixtureList.Count; i++)
+                {
+                    Fixture f = FixtureList[i];
+                    if (f.IsSensor)
+                    {
+                        var filter = f.Filter;
+                        filter.GroupIndex = value;
+                        f.Filter = filter;
+                    }
+                }
+            }
+            get { return _triggerCollisionGroup; }
+        }
+
+        internal Vector2 _scale;
+        public Vector2 Scale
+        {
+            get
+            {
+                return _scale;
+            }
+            set
+            {
+                if (_scale != value)
+                {
+                    _scale = value;
+                    foreach (Fixture fixture in FixtureList)
+                    {
+                        fixture.UpdateTransform();
+                    }
+                }
+            }
+        }
+
+        public void FlipX(bool isRight = true)
+        {
+            var temp = _scale;
+            if (isRight)
+            {
+                temp.X = Math.Abs(_scale.X);
+            }
+            else
+            {
+                temp.X = -Math.Abs(_scale.X);
+            }
+            Scale = temp;
+        }
+
+        public float Restitution
+        {
+            get
+            {
+                for (int i = 0; i < FixtureList.Count; i++)
+                {
+                    if (FixtureList[i].IsSensor == false)
+                    {
+                        return FixtureList[i].Restitution;
+                    }
+                }
+                return 0f;
+            }
+            set
+            {
+                for (int i = 0; i < FixtureList.Count; i++)
+                {
+                    FixtureList[i].Restitution = value;
+                }
+            }
+        }
+
+        public float Friction
+        {
+            get
+            {
+                for (int i = 0; i < FixtureList.Count; i++)
+                {
+                    if (FixtureList[i].IsSensor == false)
+                    {
+                        return FixtureList[i].Friction;
+                    }
+                }
+                return 0f;
+            }
+            set
+            {
+                for (int i = 0; i < FixtureList.Count; i++)
+                {
+                    FixtureList[i].Friction = value;
+                }
+            }
+        }
+
+
+        public void IgnoreCollisionWith(Body other)
+        {
+            if (other.IsDisposed || this.IsDisposed)
+            {
+                return;
+            }
+            for (int i = 0; i < FixtureList.Count; i++)
+            {
+                for (int j = 0; j < other.FixtureList.Count; j++)
+                {
+                    FixtureList[i].IgnoreCollisionWith(other.FixtureList[j]);
+                }
+            }
+        }
+
+        public void RestoreCollisionWith(Body other)
+        {
+            for (int i = 0; i < FixtureList.Count; i++)
+            {
+                for (int j = 0; j < other.FixtureList.Count; j++)
+                {
+                    FixtureList[i].RestoreCollisionWith(other.FixtureList[j]);
+                }
+            }
         }
     }
 }

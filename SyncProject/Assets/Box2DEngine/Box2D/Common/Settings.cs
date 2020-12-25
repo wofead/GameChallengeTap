@@ -1,3 +1,5 @@
+using Box2DSharp.Dynamics;
+
 namespace Box2DSharp.Common
 {
     public static class Settings
@@ -7,6 +9,27 @@ namespace Box2DSharp.Common
         public const float Epsilon = 1.192092896e-7f;
 
         public const float Pi = 3.14159265359f;
+
+        /// <summary>
+        /// Farseer Physics Engine has a different way of filtering fixtures than Box2d.
+        /// We have both FPE and Box2D filtering in the engine. If you are upgrading
+        /// from earlier versions of FPE, set this to true and DefaultFixtureCollisionCategories
+        /// to Category.All.
+        /// </summary>
+        public static bool UseFPECollisionCategories;
+
+        /// <summary>
+        /// This is used by the Fixture constructor as the default value 
+        /// for Fixture.CollisionCategories member. Note that you may need to change this depending
+        /// on the setting of UseFPECollisionCategories, above.
+        /// </summary>
+        public static Category DefaultFixtureCollisionCategories = Category.Cat1;
+
+        /// <summary>
+        /// This is used by the Fixture constructor as the default value 
+        /// for Fixture.CollidesWith member.
+        /// </summary>
+        public static Category DefaultFixtureCollidesWith = Category.All;
 
         // @file
         // Global tuning constants based on meters-kilograms-seconds (MKS) units.

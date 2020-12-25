@@ -37,6 +37,10 @@ namespace Box2DSharp.Dynamics
         /// <summary>
         /// 碰撞时间
         /// </summary>
-        Toi = 1 << 6
+        Toi = 1 << 6,
+        /// <summary>
+        /// 悬停
+        /// </summary>
+        IsHover = 1 << 7
     }
 }

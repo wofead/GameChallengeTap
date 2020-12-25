@@ -10,6 +10,43 @@ using Box2DSharp.Common;
 
 namespace Box2DSharp.Dynamics
 {
+    [Flags]
+    public enum Category
+    {
+        None = 0,
+        All = int.MaxValue,
+        Cat1 = 1,
+        Cat2 = 2,
+        Cat3 = 4,
+        Cat4 = 8,
+        Cat5 = 16,
+        Cat6 = 32,
+        Cat7 = 64,
+        Cat8 = 128,
+        Cat9 = 256,
+        Cat10 = 512,
+        Cat11 = 1024,
+        Cat12 = 2048,
+        Cat13 = 4096,
+        Cat14 = 8192,
+        Cat15 = 16384,
+        Cat16 = 32768,
+        Cat17 = 65536,
+        Cat18 = 131072,
+        Cat19 = 262144,
+        Cat20 = 524288,
+        Cat21 = 1048576,
+        Cat22 = 2097152,
+        Cat23 = 4194304,
+        Cat24 = 8388608,
+        Cat25 = 16777216,
+        Cat26 = 33554432,
+        Cat27 = 67108864,
+        Cat28 = 134217728,
+        Cat29 = 268435456,
+        Cat30 = 536870912,
+        Cat31 = 1073741824
+    }
     /// A fixture is used to attach a shape to a body for collision detection. A fixture
     /// inherits its transform from its parent. Fixtures hold additional non-geometric data
     /// such as friction, collision filters, etc.
@@ -93,6 +130,15 @@ namespace Box2DSharp.Dynamics
         /// Get the type of the child shape. You can use this to down cast to the concrete shape.
         /// @return the shape type.
         public ShapeType ShapeType => Shape.ShapeType;
+        internal HashSet<int> _collisionIgnores;
+        /// <summary>
+        /// Gets a unique ID for this fixture.
+        /// </summary>
+        /// <value>The fixture id.</value>
+        public int FixtureId { get; internal set; }
+
+        internal Transform Transform;
+        private Vector2 scale;
 
         /// We need separation create/destroy functions from the constructor/destructor because
         /// the destructor cannot access the allocator (no destructor arguments allowed by C++).
@@ -161,6 +207,55 @@ namespace Box2DSharp.Dynamics
             ProxyCount = 0;
         }
 
+        public void UpdateTransform()
+        {
+            //LocalTransform(this.Transform.Position, this.scale, this.Transform.Rotation.Angle * FP.Rad2Deg);
+        }
+        /// <summary>
+        /// Restores collisions between this fixture and the provided fixture.
+        /// </summary>
+        /// <param name="fixture">The fixture.</param>
+        public void RestoreCollisionWith(Fixture fixture)
+        {
+            if (_collisionIgnores.Contains(fixture.FixtureId))
+            {
+                _collisionIgnores.Remove(fixture.FixtureId);
+                Refilter();
+            }
+        }
+
+        /// <summary>
+        /// Ignores collisions between this fixture and the provided fixture.
+        /// </summary>
+        /// <param name="fixture">The fixture.</param>
+        public void IgnoreCollisionWith(Fixture fixture)
+        {
+            if (!_collisionIgnores.Contains(fixture.FixtureId))
+            {
+                _collisionIgnores.Add(fixture.FixtureId);
+                Refilter();
+            }
+        }
+
+        /// <summary>
+        /// Determines whether collisions are ignored between this fixture and the provided fixture.
+        /// </summary>
+        /// <param name="fixture">The fixture.</param>
+        /// <returns>
+        /// 	<c>true</c> if the fixture is ignored; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsFixtureIgnored(Fixture fixture)
+        {
+            return _collisionIgnores.Contains(fixture.FixtureId);
+        }
+
+        ///
+        public void SetFilterMaskBits(ushort value)
+        {
+            var filter = this.Filter;
+            filter.MaskBits = (ushort)value;
+            this.Filter = filter;
+        }
         /// Call this if you want to establish collision that was previously disabled by b2ContactFilter::ShouldCollide.
         public void Refilter()
         {
